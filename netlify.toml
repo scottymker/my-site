@@ -1,15 +1,10 @@
-# netlify.toml
-
+# Optional: commit this to your repo root so Netlify picks it up automatically
 [build]
-  base    = ""     # root of repo
-  publish = "."    # serve index.html, style.css, etc. from repo root
-  command = ""     # no build step
+  publish = "."
+  command = ""
 
-[functions]
-  directory = "netlify/functions"  # only needed if you add functions later
-
-# Optional: redirect everything else to index.html (good for single-page apps)
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# Uncomment if you want SPA-style catch-all routing
+# [[redirects]]
+#   from = "/*"
+#   to = "/index.html"
+#   status = 200

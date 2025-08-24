@@ -1,1 +1,178 @@
-<!DOCTYPE html><html><head><title>Scott Ymker</title></head><body><h1>Scott Ymker Portfolio</h1></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scott Ymker • Creative Technologist & Photographer</title>
+  <meta name="description" content="The one-page hub for Scott Ymker — photography, homelab builds, and creative tech projects.">
+  <meta property="og:title" content="Scott Ymker • Creative Technologist & Photographer">
+  <meta property="og:description" content="Photography • Homelab • SaaS tinkering • Community">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/og-preview.jpg">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Background animation -->
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="Home">
+        <span class="logo" aria-hidden="true">SY</span>
+        <span class="brand-text">Scott Ymker</span>
+      </a>
+      <nav aria-label="Primary">
+        <button id="navToggle" class="nav-toggle" aria-expanded="false" aria-controls="navMenu">Menu</button>
+        <ul id="navMenu" class="nav">
+          <li><a href="#about">About</a></li>
+          <li><a href="#interests">Interests</a></li>
+          <li><a href="#work">Photography</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section id="top" class="section hero" aria-label="Hero">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <h1 class="hero-title">
+            Hey, I'm Scott —
+            <span class="typing" aria-live="polite">
+              photographer • creative technologist • nurse LPN
+            </span>
+          </h1>
+          <p class="hero-sub">I build scrappy tech, shoot clean portraits, and love making local ideas real.</p>
+          <div class="hero-cta">
+            <a class="button primary" href="#contact">Work with me</a>
+            <a class="button ghost" href="#work">See photos</a>
+          </div>
+          <ul class="badges" aria-label="Highlights">
+            <li>📸 School & sports photography</li>
+            <li>🧪 Homelab & Proxmox tinkerer</li>
+            <li>💬 Community-focused projects</li>
+          </ul>
+        </div>
+        <div class="hero-photo">
+          <img src="assets/hero.jpg" alt="Scott on location with camera gear" />
+        </div>
+      </div>
+      <div class="scroll-indicator" aria-hidden="true">Scroll</div>
+    </section>
+
+    <!-- ABOUT / INTERESTS -->
+    <section id="about" class="section" aria-label="About Scott">
+      <div class="container grid-2">
+        <div>
+          <h2 class="eyebrow">About</h2>
+          <h3 class="section-title">Small-town roots. Big builder energy.</h3>
+          <p class="lead">
+            I split my time between <strong>school photography</strong>, <strong>homelab/automation</strong>, and community projects.
+            I like tools that are simple, fast, and real-world useful.
+          </p>
+          <div class="codecard reveal" role="figure" aria-label="Tech stack">
+<pre><code>// Current stack
+Compute: Proxmox • Debian • Windows VM
+Network: OpenWRT • VLANs • Tailscale
+Web: HTML/CSS/JS • Cloudflare Pages • Stripe
+Photo: Lightroom • Photoshop • Actions/Macros
+</code></pre>
+          </div>
+        </div>
+        <div id="interests" class="pill-list">
+          <h2 class="eyebrow">Interests</h2>
+          <ul class="pills">
+            <li class="pill reveal">Class composites</li>
+            <li class="pill reveal">Portrait lighting</li>
+            <li class="pill reveal">Automations</li>
+            <li class="pill reveal">Network design</li>
+            <li class="pill reveal">SaaS experiments</li>
+            <li class="pill reveal">Teaching & templates</li>
+            <li class="pill reveal">Healthcare + tech</li>
+          </ul>
+          <div class="metrics reveal" aria-label="Quick stats">
+            <div><span class="num" data-count="25">0</span><span class="label">Schools Served</span></div>
+            <div><span class="num" data-count="10000">0</span><span class="label">Portraits Edited</span></div>
+            <div><span class="num" data-count="12">0</span><span class="label">Homelab Nodes</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PHOTOGRAPHY WORK -->
+    <section id="work" class="section" aria-label="Photography">
+      <div class="container">
+        <h2 class="eyebrow">Photography</h2>
+        <h3 class="section-title">Clean, consistent, community-first.</h3>
+        <p class="lead">A few samples — swap in your own images in <code>/assets</code>.</p>
+
+        <div class="gallery">
+          <figure class="reveal"><img src="assets/photo-1.jpg" alt="Studio portrait sample"><figcaption>Studio Portrait</figcaption></figure>
+          <figure class="reveal"><img src="assets/photo-2.jpg" alt="School day portrait sample"><figcaption>School Day Portrait</figcaption></figure>
+          <figure class="reveal"><img src="assets/photo-3.jpg" alt="Team photo sample"><figcaption>Team Photo</figcaption></figure>
+          <figure class="reveal"><img src="assets/photo-4.jpg" alt="Composite sample"><figcaption>Class Composite</figcaption></figure>
+          <figure class="reveal"><img src="assets/photo-5.jpg" alt="Event coverage sample"><figcaption>Event Coverage</figcaption></figure>
+          <figure class="reveal"><img src="assets/photo-6.jpg" alt="Outdoor portrait sample"><figcaption>Outdoor Portrait</figcaption></figure>
+        </div>
+
+        <div class="cta-bar reveal">
+          <a class="button primary" href="#contact">Book a session</a>
+          <a class="button ghost" href="https://scott-ymker-site.pages.dev" target="_blank" rel="noopener">See more work</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section contact" aria-label="Contact Scott">
+      <div class="container grid-2 contact-grid">
+        <div>
+          <h2 class="eyebrow">Get in touch</h2>
+          <h3 class="section-title">Let's make something.</h3>
+          <p class="lead">Reach out for school photos, community projects, or tech builds. Quick replies, straight talk.</p>
+          <ul class="contact-list">
+            <li>📧 <a href="mailto:ymkerphotos@gmail.com">ymkerphotos@gmail.com</a></li>
+            <li>📱 <a href="tel:+16059999999">(605) 999-9999</a></li>
+            <li>🌐 <a href="https://scott-ymker-site.pages.dev" target="_blank" rel="noopener">scott-ymker-site.pages.dev</a></li>
+          </ul>
+          <div class="social">
+            <a aria-label="Instagram" href="#" class="social-link">Instagram</a>
+            <a aria-label="Facebook" href="#" class="social-link">Facebook</a>
+            <a aria-label="GitHub" href="#" class="social-link">GitHub</a>
+          </div>
+        </div>
+        <!-- Netlify-ready static form; swap attributes if using another provider -->
+        <form class="contact-form" aria-label="Contact form" name="contact" method="POST" data-netlify="true">
+          <input type="hidden" name="form-name" value="contact">
+          <label> Your Name
+            <input required type="text" name="name" placeholder="Jane Doe" autocomplete="name">
+          </label>
+          <label> Email
+            <input required type="email" name="email" placeholder="you@example.com" autocomplete="email">
+          </label>
+          <label> Message
+            <textarea required name="message" rows="4" placeholder="Tell me about your project..."></textarea>
+          </label>
+          <button class="button primary" type="submit">Send</button>
+          <p class="form-note">On Cloudflare Pages, swap Netlify attributes for your preferred form solution.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="year"></span> Scott Ymker • Made with ♥ in South Dakota</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
