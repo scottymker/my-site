@@ -1,0 +1,15 @@
+# netlify.toml
+
+[build]
+  base    = ""     # root of repo
+  publish = "."    # serve index.html, style.css, etc. from repo root
+  command = ""     # no build step
+
+[functions]
+  directory = "netlify/functions"  # only needed if you add functions later
+
+# Optional: redirect everything else to index.html (good for single-page apps)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
