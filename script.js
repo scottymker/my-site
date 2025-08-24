@@ -1,0 +1,1 @@
+console.log('Scott Ymker site loaded');
