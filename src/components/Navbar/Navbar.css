@@ -40,17 +40,14 @@
   color: var(--accent-primary);
 }
 
-.logo-icon {
-  color: var(--accent-primary);
-  width: 24px;
-  height: 24px;
+.logo-image {
+  height: 40px;
+  width: auto;
+  transition: transform var(--transition-fast);
 }
 
-.logo-text {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.navbar-logo:hover .logo-image {
+  transform: scale(1.05);
 }
 
 .navbar-links {

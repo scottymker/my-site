@@ -1,4 +1,4 @@
-import { Heart, Terminal } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import './Footer.css';
 
 function Footer() {
@@ -10,8 +10,7 @@ function Footer() {
         <div className="footer-content">
           <div className="footer-brand">
             <a href="#home" className="footer-logo">
-              <Terminal size={20} />
-              <span>The Dev Side</span>
+              <img src="/logo.png" alt="The Dev Side" className="footer-logo-image" />
             </a>
             <p className="footer-tagline">
               Building digital experiences that matter.

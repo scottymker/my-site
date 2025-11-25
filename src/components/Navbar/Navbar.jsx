@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, Terminal } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Navbar.css';
 
@@ -51,8 +51,7 @@ function Navbar() {
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="navbar-container">
         <a href="#home" className="navbar-logo" onClick={(e) => handleNavClick(e, '#home')}>
-          <Terminal className="logo-icon" />
-          <span className="logo-text">The Dev Side</span>
+          <img src="/logo.png" alt="The Dev Side" className="logo-image" />
         </a>
 
         {/* Desktop Navigation */}
