@@ -34,23 +34,23 @@ function Footer() {
               <h4>Connect</h4>
               <ul>
                 <li>
-                  <a href="https://github.com/[YOUR_USERNAME]" target="_blank" rel="noopener noreferrer">
+                  <a href="https://github.com/scottymker" target="_blank" rel="noopener noreferrer">
                     GitHub
                   </a>
                 </li>
                 <li>
-                  <a href="https://linkedin.com/in/[YOUR_USERNAME]" target="_blank" rel="noopener noreferrer">
+                  <a href="https://www.linkedin.com/in/scott-ymker-244ab81ab" target="_blank" rel="noopener noreferrer">
                     LinkedIn
                   </a>
                 </li>
                 <li>
-                  <a href="https://twitter.com/[YOUR_USERNAME]" target="_blank" rel="noopener noreferrer">
-                    Twitter
+                  <a href="mailto:info@thedevside.com">
+                    Email
                   </a>
                 </li>
                 <li>
-                  <a href="mailto:[YOUR_EMAIL]">
-                    Email
+                  <a href="tel:+16055500828">
+                    (605) 550-0828
                   </a>
                 </li>
               </ul>

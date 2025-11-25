@@ -53,17 +53,20 @@ Tools:
     description: 'View projects',
     output: `// Featured Projects
 
-[1] [PROJECT_NAME_1]
-    Full-stack web application
-    Tech: React, Node.js, MongoDB
+[1] Just For Fishing
+    E-commerce fishing supply platform
+    Tech: Shopify, JavaScript, Payment Integration
+    URL: justforfishing.com
 
-[2] [PROJECT_NAME_2]
-    Interactive dashboard
-    Tech: Vue.js, D3.js, Firebase
+[2] You Still Matter
+    Mental health companion app
+    Tech: React Native, iOS, Android
+    URL: youstillmatter.org
 
-[3] [PROJECT_NAME_3]
-    E-commerce platform
-    Tech: Next.js, Stripe, PostgreSQL
+[3] Wall Decor Plus More
+    Custom home decor e-commerce
+    Tech: BigCommerce, Custom Development
+    URL: walldecorplusmore.com
 
 Scroll down to see more details, or type 'contact' to discuss a project.`,
   },
@@ -71,9 +74,11 @@ Scroll down to see more details, or type 'contact' to discuss a project.`,
     description: 'Get contact info',
     output: `// Let's Connect
 
-Email:    [YOUR_EMAIL]
-GitHub:   github.com/[YOUR_USERNAME]
-LinkedIn: linkedin.com/in/[YOUR_USERNAME]
+Email:    info@thedevside.com
+Phone:    (605) 550-0828
+GitHub:   github.com/scottymker
+LinkedIn: linkedin.com/in/scott-ymker-244ab81ab
+Location: South Dakota, USA
 
 Or scroll down to use the contact form.
 

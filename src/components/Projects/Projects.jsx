@@ -44,7 +44,7 @@ function Projects() {
               contributions.
             </p>
             <a
-              href="https://github.com/[YOUR_USERNAME]"
+              href="https://github.com/scottymker"
               className="btn btn-secondary"
               target="_blank"
               rel="noopener noreferrer"
