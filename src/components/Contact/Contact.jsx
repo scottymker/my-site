@@ -54,7 +54,7 @@ function Contact() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          access_key: '[YOUR_WEB3FORMS_KEY]', // Get free key at web3forms.com
+          access_key: '5e9a8675-ffe2-49b8-97c2-c284d9c0f8b5',
           name: formData.name,
           email: formData.email,
           subject: formData.subject || 'New Contact Form Submission',
