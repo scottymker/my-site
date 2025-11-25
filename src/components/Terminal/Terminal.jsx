@@ -56,7 +56,7 @@ Tools:
 [1] Just For Phishing
     E-commerce fishing supply platform
     Tech: Shopify, JavaScript, Payment Integration
-    URL: justforfishing.com
+    URL: justforphishing.com
 
 [2] You Still Matter
     Mental health companion app

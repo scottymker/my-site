@@ -5,7 +5,7 @@ export const projects = [
     description: "A comprehensive e-commerce platform for fishing enthusiasts. Features include product catalog, customer reviews, secure checkout, and a Guide/Captain program for professionals.",
     image: "https://placehold.co/600x400/0d1117/00d4ff?text=Just+For+Phishing",
     tech: ["Shopify", "JavaScript", "Payment Integration"],
-    liveUrl: "https://justforfishing.com",
+    liveUrl: "https://justforphishing.com",
     githubUrl: null,
     featured: true,
   },
