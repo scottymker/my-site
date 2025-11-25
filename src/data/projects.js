@@ -2,9 +2,9 @@ export const projects = [
   {
     id: 1,
     title: "Just For Phishing",
-    description: "A comprehensive e-commerce platform for fishing enthusiasts. Features include product catalog, customer reviews, secure checkout, and a Guide/Captain program for professionals.",
+    description: "An interactive security training platform teaching users to identify and defend against phishing attacks. Features hands-on labs, realistic simulators, and 20+ training scenarios—all free and privacy-focused.",
     image: "https://placehold.co/600x400/0d1117/00d4ff?text=Just+For+Phishing",
-    tech: ["Shopify", "JavaScript", "Payment Integration"],
+    tech: ["React", "Security Training", "Interactive Learning"],
     liveUrl: "https://justforphishing.com",
     githubUrl: null,
     featured: true,

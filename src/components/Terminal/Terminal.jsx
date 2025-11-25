@@ -54,8 +54,8 @@ Tools:
     output: `// Featured Projects
 
 [1] Just For Phishing
-    E-commerce fishing supply platform
-    Tech: Shopify, JavaScript, Payment Integration
+    Security awareness training platform
+    Tech: React, Security Training, Interactive Learning
     URL: justforphishing.com
 
 [2] You Still Matter
