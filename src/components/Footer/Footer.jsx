@@ -11,7 +11,7 @@ function Footer() {
           <div className="footer-brand">
             <a href="#home" className="footer-logo">
               <Terminal size={20} />
-              <span>[BRAND_NAME]</span>
+              <span>The Dev Side</span>
             </a>
             <p className="footer-tagline">
               Building digital experiences that matter.
@@ -60,7 +60,7 @@ function Footer() {
 
         <div className="footer-bottom">
           <p className="copyright">
-            &copy; {currentYear} [BRAND_NAME]. All rights reserved.
+            &copy; {currentYear} The Dev Side. All rights reserved.
           </p>
           <p className="made-with">
             Made with <Heart size={14} className="heart-icon" /> and lots of ☕

@@ -52,7 +52,7 @@ function Navbar() {
       <div className="navbar-container">
         <a href="#home" className="navbar-logo" onClick={(e) => handleNavClick(e, '#home')}>
           <Terminal className="logo-icon" />
-          <span className="logo-text">[BRAND_NAME]</span>
+          <span className="logo-text">The Dev Side</span>
         </a>
 
         {/* Desktop Navigation */}

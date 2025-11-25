@@ -18,9 +18,9 @@ const COMMANDS = {
   },
   about: {
     description: 'Learn about the developer',
-    output: `> [YOUR_NAME]
+    output: `> Scott
 > Full-Stack Web Developer
-> Location: [YOUR_LOCATION]
+> Location: United States
 
 I build things for the web. I love turning ideas into
 reality through clean code and intuitive design.
@@ -158,7 +158,7 @@ function Terminal() {
   const [history, setHistory] = useState([
     {
       type: 'output',
-      content: `Welcome to [BRAND_NAME] Terminal v1.0.0
+      content: `Welcome to The Dev Side Terminal v1.0.0
 Type 'help' for available commands.
 `,
     },

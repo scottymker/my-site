@@ -9,20 +9,20 @@
 /* Pulsing glow effect */
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(255, 107, 53, 0.3);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
   }
   50% {
-    box-shadow: 0 0 40px rgba(255, 107, 53, 0.6);
+    box-shadow: 0 0 40px rgba(0, 255, 136, 0.6);
   }
 }
 
 /* Text glow pulse */
 @keyframes text-glow {
   0%, 100% {
-    text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
   }
   50% {
-    text-shadow: 0 0 25px rgba(255, 107, 53, 0.8), 0 0 50px rgba(255, 107, 53, 0.4);
+    text-shadow: 0 0 25px rgba(0, 255, 136, 0.8), 0 0 50px rgba(0, 212, 255, 0.4);
   }
 }
 

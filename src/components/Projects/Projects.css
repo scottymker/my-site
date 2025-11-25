@@ -29,7 +29,7 @@
 
 .project-card:hover {
   border-color: var(--accent-primary);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), var(--glow-orange);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), var(--glow-cyan);
 }
 
 .project-image {

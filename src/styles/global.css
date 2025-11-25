@@ -101,7 +101,7 @@ h3 {
 }
 
 .glow-text {
-  text-shadow: var(--glow-orange);
+  text-shadow: var(--glow-cyan);
 }
 
 .glass {
@@ -127,14 +127,14 @@ h3 {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: var(--bg-primary);
-  box-shadow: var(--glow-orange);
+  box-shadow: var(--glow-cyan);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 30px rgba(255, 107, 53, 0.6);
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
 }
 
 .btn-secondary {

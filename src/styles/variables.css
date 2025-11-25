@@ -1,14 +1,14 @@
 :root {
   /* Background layers */
   --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-tertiary: #1a1a25;
-  --bg-card: #15151f;
+  --bg-secondary: #0d1117;
+  --bg-tertiary: #161b22;
+  --bg-card: #0d1117;
 
-  /* Warm accent colors */
-  --accent-primary: #ff6b35;
-  --accent-secondary: #f7c566;
-  --accent-tertiary: #ffaa33;
+  /* Cyan to Green accent colors (matching logo) */
+  --accent-primary: #00d4ff;
+  --accent-secondary: #00ff88;
+  --accent-tertiary: #00b4d8;
 
   /* Text colors */
   --text-primary: #e8e8e8;
@@ -21,13 +21,13 @@
   --terminal-red: #ff4757;
 
   /* Glow effects */
-  --glow-orange: 0 0 20px rgba(255, 107, 53, 0.5);
-  --glow-gold: 0 0 20px rgba(247, 197, 102, 0.5);
-  --glow-green: 0 0 15px rgba(0, 255, 136, 0.4);
+  --glow-cyan: 0 0 20px rgba(0, 212, 255, 0.5);
+  --glow-green: 0 0 20px rgba(0, 255, 136, 0.5);
+  --glow-primary: 0 0 20px rgba(0, 212, 255, 0.4);
 
   /* Glass effect */
-  --glass-bg: rgba(18, 18, 26, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(13, 17, 23, 0.8);
+  --glass-border: rgba(0, 212, 255, 0.1);
 
   /* Spacing */
   --spacing-xs: 0.5rem;

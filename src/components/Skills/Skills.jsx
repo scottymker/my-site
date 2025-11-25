@@ -89,7 +89,7 @@ function Skills() {
             <pre>
               <code>
 {`const developer = {
-  name: "[YOUR_NAME]",
+  name: "Scott",
   title: "Full-Stack Developer",
   skills: ["React", "Node.js", "TypeScript"],
   passion: "Building amazing web experiences",

@@ -51,7 +51,7 @@ function About() {
             transition={{ delay: 0.2 }}
           >
             <p className="about-intro">
-              Hey there! I'm <strong>[YOUR_NAME]</strong>, a passionate web developer
+              Hey there! I'm <strong>Scott</strong>, a passionate web developer
               who loves turning ideas into reality through code.
             </p>
             <p>

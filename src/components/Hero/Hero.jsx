@@ -85,7 +85,7 @@ function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          Hi, I'm <span className="name-highlight">[YOUR_NAME]</span>
+          Hi, I'm <span className="name-highlight">Scott</span>
         </motion.h1>
 
         <motion.div
