@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, X, Minimize2, Maximize2 } from 'lucide-react';
 import { getRandomResponse } from './responses';
@@ -9,8 +9,36 @@ function AICompanion() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [message, setMessage] = useState('');
   const [isThinking, setIsThinking] = useState(false);
-  const [lastSection, setLastSection] = useState('');
-  const [idleTimer, setIdleTimer] = useState(null);
+  const lastSectionRef = useRef('');
+  const idleTimerRef = useRef(null);
+  const thinkingTimerRef = useRef(null);
+  const isShowingMessageRef = useRef(false);
+
+  const showMessage = useCallback((category) => {
+    // Prevent overlapping messages
+    if (isShowingMessageRef.current) return;
+    isShowingMessageRef.current = true;
+
+    // Clear any pending thinking timer
+    if (thinkingTimerRef.current) {
+      clearTimeout(thinkingTimerRef.current);
+    }
+
+    setIsThinking(true);
+    setMessage('');
+
+    // Simulate "thinking" delay
+    const thinkTime = 500 + Math.random() * 1000;
+
+    thinkingTimerRef.current = setTimeout(() => {
+      setIsThinking(false);
+      setMessage(getRandomResponse(category));
+      // Allow new messages after a brief cooldown
+      setTimeout(() => {
+        isShowingMessageRef.current = false;
+      }, 2000);
+    }, thinkTime);
+  }, []);
 
   // Show initial greeting
   useEffect(() => {
@@ -18,7 +46,7 @@ function AICompanion() {
       showMessage('greetings');
     }, 1500);
     return () => clearTimeout(timer);
-  }, []);
+  }, [showMessage]);
 
   // Track which section is visible
   useEffect(() => {
@@ -30,9 +58,21 @@ function AICompanion() {
         if (element) {
           const rect = element.getBoundingClientRect();
           if (rect.top <= 200 && rect.bottom >= 200) {
-            if (section !== lastSection) {
-              setLastSection(section);
-              handleSectionChange(section);
+            if (section !== lastSectionRef.current) {
+              lastSectionRef.current = section;
+
+              const sectionMap = {
+                home: 'greetings',
+                about: 'about',
+                projects: 'projects',
+                skills: 'skills',
+                contact: 'contact',
+              };
+
+              // Only show message sometimes to not be annoying
+              if (Math.random() > 0.4) {
+                showMessage(sectionMap[section] || 'scroll');
+              }
             }
             break;
           }
@@ -42,20 +82,18 @@ function AICompanion() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastSection]);
+  }, [showMessage]);
 
   // Idle timer
   useEffect(() => {
     const resetIdleTimer = () => {
-      if (idleTimer) clearTimeout(idleTimer);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
 
-      const newTimer = setTimeout(() => {
+      idleTimerRef.current = setTimeout(() => {
         if (!isMinimized && Math.random() > 0.5) {
           showMessage('idle');
         }
       }, 30000); // 30 seconds idle
-
-      setIdleTimer(newTimer);
     };
 
     window.addEventListener('mousemove', resetIdleTimer);
@@ -65,36 +103,16 @@ function AICompanion() {
     return () => {
       window.removeEventListener('mousemove', resetIdleTimer);
       window.removeEventListener('keydown', resetIdleTimer);
-      if (idleTimer) clearTimeout(idleTimer);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
-  }, [isMinimized]);
+  }, [isMinimized, showMessage]);
 
-  const handleSectionChange = (section) => {
-    const sectionMap = {
-      home: 'greetings',
-      about: 'about',
-      projects: 'projects',
-      skills: 'skills',
-      contact: 'contact',
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (thinkingTimerRef.current) clearTimeout(thinkingTimerRef.current);
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
-
-    // Only show message sometimes to not be annoying
-    if (Math.random() > 0.4) {
-      showMessage(sectionMap[section] || 'scroll');
-    }
-  };
-
-  const showMessage = useCallback((category) => {
-    setIsThinking(true);
-    setMessage('');
-
-    // Simulate "thinking" delay
-    const thinkTime = 500 + Math.random() * 1000;
-
-    setTimeout(() => {
-      setIsThinking(false);
-      setMessage(getRandomResponse(category));
-    }, thinkTime);
   }, []);
 
   const handleClose = () => {
