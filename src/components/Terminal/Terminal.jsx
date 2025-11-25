@@ -53,7 +53,7 @@ Tools:
     description: 'View projects',
     output: `// Featured Projects
 
-[1] Just For Fishing
+[1] Just For Phishing
     E-commerce fishing supply platform
     Tech: Shopify, JavaScript, Payment Integration
     URL: justforfishing.com
