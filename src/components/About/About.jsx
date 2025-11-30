@@ -50,6 +50,20 @@ function About() {
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
           >
+            <motion.div
+              className="headshot-wrapper"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+            >
+              <img
+                src="/headshot.png"
+                alt="Scott Ymker"
+                className="headshot"
+              />
+              <div className="headshot-glow"></div>
+            </motion.div>
             <p className="about-intro">
               Hey there! I'm <strong>Scott</strong>, a passionate web developer
               who loves turning ideas into reality through code.
