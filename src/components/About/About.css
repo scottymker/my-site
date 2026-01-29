@@ -158,6 +158,30 @@
   color: var(--terminal-green);
 }
 
+/* Promo Video */
+.about-video-wrapper {
+  margin-top: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+}
+
+.about-video {
+  width: 100%;
+  display: block;
+  border-radius: var(--radius-lg);
+}
+
+.about-video-caption {
+  text-align: center;
+  padding: var(--spacing-sm);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
 @media (max-width: 1024px) {
   .about-content {
     grid-template-columns: 1fr;

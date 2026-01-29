@@ -118,6 +118,18 @@ function About() {
             <p className="terminal-hint">
               💡 Try typing <code>help</code> in the terminal above!
             </p>
+
+            <div className="about-video-wrapper">
+              <video
+                controls
+                preload="metadata"
+                className="about-video"
+              >
+                <source src="/video/promo.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              <p className="about-video-caption">See what we can build for you</p>
+            </div>
           </motion.div>
         </div>
       </div>

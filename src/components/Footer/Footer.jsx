@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
 import './Footer.css';
 
@@ -26,6 +27,7 @@ function Footer() {
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#skills">Skills</a></li>
                 <li><a href="#contact">Contact</a></li>
+                <li><Link to="/blog">Blog</Link></li>
               </ul>
             </div>
 
