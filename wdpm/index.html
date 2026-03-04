@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WDPM Marketing Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .card { transition: transform 0.2s, box-shadow 0.2s; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        .metric-up { color: #10b981; }
+        .metric-down { color: #ef4444; }
+        .metric-neutral { color: #6b7280; }
+        .editable {
+            background: transparent;
+            border: 1px dashed transparent;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .editable:hover { border-color: #cbd5e1; background: #f8fafc; }
+        .editable:focus {
+            outline: none;
+            border-color: #0d9488;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+        }
+        .target-bar { height: 8px; border-radius: 4px; background: #e2e8f0; overflow: hidden; }
+        .target-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        .section-header {
+            background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px 12px 0 0;
+            margin: -24px -24px 20px -24px;
+        }
+        @media print {
+            .no-print { display: none; }
+            .card { break-inside: avoid; }
+        }
+        .content-hidden { display: none !important; }
+        .import-tab { background: #f3f4f6; color: #6b7280; }
+        .import-tab:hover { background: #e5e7eb; }
+        .import-tab.active { background: #2563eb; color: white; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Password Overlay -->
+    <div id="password-overlay" class="fixed inset-0 bg-gradient-to-br from-teal-800 to-teal-600 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <img src="https://cdn11.bigcommerce.com/s-571px4/images/stencil/250x91/2024_website_logo_neutrals_3_1703106810__96240.original.png"
+                     alt="WDPM Logo" class="h-12 mx-auto mb-4" style="filter: brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(164deg) brightness(97%) contrast(101%);">
+                <h1 class="text-2xl font-bold text-gray-800">Marketing Dashboard</h1>
+                <p class="text-gray-500 text-sm mt-1">Enter password to access</p>
+            </div>
+            <form onsubmit="checkPassword(event)">
+                <input type="password" id="passwordInput"
+                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-teal-500 focus:outline-none text-center text-lg"
+                       placeholder="Enter password" autofocus>
+                <button type="submit"
+                        class="w-full mt-4 bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition">
+                    Access Dashboard
+                </button>
+            </form>
+            <p id="passwordError" class="text-red-500 text-sm text-center mt-3 hidden">Incorrect password</p>
+        </div>
+    </div>
+
+    <!-- Main Content (hidden until authenticated) -->
+    <div id="main-content" class="content-hidden">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-teal-700 to-teal-600 text-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 py-3">
+                <div class="flex items-center justify-between flex-wrap gap-3">
+                    <div class="flex items-center gap-4">
+                        <img src="https://cdn11.bigcommerce.com/s-571px4/images/stencil/250x91/2024_website_logo_neutrals_3_1703106810__96240.original.png"
+                             alt="Wall Decor Plus More" class="h-8" style="filter: brightness(0) invert(1);">
+                        <div class="border-l border-teal-500 pl-4">
+                            <h1 class="text-lg font-semibold leading-tight">Marketing Dashboard</h1>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="text-teal-200">Week:</span>
+                        <input type="week" id="reportWeek" class="bg-white/10 text-white font-medium px-2 py-1 rounded border border-teal-500"
+                               onchange="updateWeekDisplay()">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Quick Stats Bar -->
+        <div class="bg-white border-b shadow-sm no-print">
+            <div class="max-w-7xl mx-auto px-4 py-3">
+                <div class="flex items-center justify-between flex-wrap gap-4">
+                    <div class="flex items-center gap-6 flex-wrap">
+                        <div class="text-center min-w-[80px]">
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">Revenue</p>
+                            <p class="text-xl font-bold text-gray-800">$<span id="totalRevenue">0</span></p>
+                        </div>
+                        <div class="text-center min-w-[80px]">
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">Ad Spend</p>
+                            <p class="text-xl font-bold text-gray-800">$<span id="totalSpend">0</span></p>
+                        </div>
+                        <div class="text-center min-w-[60px]">
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">ROAS</p>
+                            <p class="text-xl font-bold text-teal-600"><span id="blendedRoas">0</span>x</p>
+                        </div>
+                        <div class="text-center min-w-[60px]">
+                            <p class="text-xs text-gray-500 uppercase tracking-wide">Orders</p>
+                            <p class="text-xl font-bold text-gray-800"><span id="totalOrders">0</span></p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="openImportModal()" class="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition flex items-center gap-1 text-sm">
+                            <i class="fas fa-upload"></i> Import
+                        </button>
+                        <button onclick="saveData()" class="bg-teal-600 text-white px-3 py-2 rounded-lg hover:bg-teal-700 transition flex items-center gap-1 text-sm">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                        <button onclick="exportData()" class="bg-gray-600 text-white px-3 py-2 rounded-lg hover:bg-gray-700 transition flex items-center gap-1 text-sm">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button onclick="window.print()" class="bg-gray-200 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-300 transition flex items-center gap-1 text-sm">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="max-w-7xl mx-auto px-4 py-8">
+            <!-- Weekly Targets -->
+            <section class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                    <i class="fas fa-bullseye text-teal-600"></i> Weekly Targets
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-xl p-4 shadow-sm card">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Revenue Goal</span>
+                            <span class="text-xs text-gray-400">$<input type="number" class="editable w-16 text-right" id="revenueGoal" value="2000" onchange="updateTargets()"> target</span>
+                        </div>
+                        <div class="target-bar">
+                            <div class="target-fill bg-teal-500" id="revenueBar" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1"><span id="revenuePercent">0</span>% achieved</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm card">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">ROAS Goal</span>
+                            <span class="text-xs text-gray-400"><input type="number" step="0.1" class="editable w-12 text-right" id="roasGoal" value="2.5" onchange="updateTargets()">x target</span>
+                        </div>
+                        <div class="target-bar">
+                            <div class="target-fill bg-emerald-500" id="roasBar" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1"><span id="roasPercent">0</span>% achieved</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm card">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Orders Goal</span>
+                            <span class="text-xs text-gray-400"><input type="number" class="editable w-12 text-right" id="ordersGoal" value="30" onchange="updateTargets()"> target</span>
+                        </div>
+                        <div class="target-bar">
+                            <div class="target-fill bg-blue-500" id="ordersBar" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1"><span id="ordersPercent">0</span>% achieved</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm card">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">Cost per Order</span>
+                            <span class="text-xs text-gray-400">$<input type="number" class="editable w-12 text-right" id="cpoGoal" value="15" onchange="updateTargets()"> max</span>
+                        </div>
+                        <div class="target-bar">
+                            <div class="target-fill bg-amber-500" id="cpoBar" style="width: 0%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">$<span id="cpoActual">0</span> actual</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Google Ads Section -->
+            <section class="mb-8">
+                <div class="bg-white rounded-xl shadow-sm card">
+                    <div class="bg-gradient-to-r from-teal-700 to-teal-600 text-white px-5 py-4 rounded-t-xl flex items-center gap-3">
+                        <i class="fab fa-google text-2xl"></i>
+                        <div>
+                            <h2 class="font-semibold text-lg">Google Ads</h2>
+                            <p class="text-teal-100 text-xs">Campaign Performance</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b text-left text-gray-500">
+                                        <th class="pb-3 font-medium">Campaign</th>
+                                        <th class="pb-3 font-medium text-right">Spend</th>
+                                        <th class="pb-3 font-medium text-right">Clicks</th>
+                                        <th class="pb-3 font-medium text-right">Impressions</th>
+                                        <th class="pb-3 font-medium text-right">CTR</th>
+                                        <th class="pb-3 font-medium text-right">Conversions</th>
+                                        <th class="pb-3 font-medium text-right">Revenue</th>
+                                        <th class="pb-3 font-medium text-right">ROAS</th>
+                                        <th class="pb-3 font-medium text-right">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="googleAdsCampaigns">
+                                    <tr class="border-b hover:bg-gray-50" data-campaign="brand-search">
+                                        <td class="py-3 font-medium">Brand Search</td>
+                                        <td class="py-3 text-right">$<input type="number" step="0.01" class="editable w-16 text-right gads-spend" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right"><input type="number" class="editable w-14 text-right gads-clicks" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right"><input type="number" class="editable w-16 text-right gads-impr" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right gads-ctr">0%</td>
+                                        <td class="py-3 text-right"><input type="number" class="editable w-12 text-right gads-conv" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right">$<input type="number" step="0.01" class="editable w-16 text-right gads-rev" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right font-semibold gads-roas">0x</td>
+                                        <td class="py-3 text-right"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">Active</span></td>
+                                    </tr>
+                                    <tr class="border-b hover:bg-gray-50" data-campaign="shopping-mailbox">
+                                        <td class="py-3 font-medium">Shopping - Mailbox Decals</td>
+                                        <td class="py-3 text-right">$<input type="number" step="0.01" class="editable w-16 text-right gads-spend" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right"><input type="number" class="editable w-14 text-right gads-clicks" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right"><input type="number" class="editable w-16 text-right gads-impr" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right gads-ctr">0%</td>
+                                        <td class="py-3 text-right"><input type="number" class="editable w-12 text-right gads-conv" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right">$<input type="number" step="0.01" class="editable w-16 text-right gads-rev" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right font-semibold gads-roas">0x</td>
+                                        <td class="py-3 text-right"><span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700">New</span></td>
+                                    </tr>
+                                    <tr class="border-b hover:bg-gray-50" data-campaign="shopping-growth">
+                                        <td class="py-3 font-medium">Shopping - Growth Charts</td>
+                                        <td class="py-3 text-right">$<input type="number" step="0.01" class="editable w-16 text-right gads-spend" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right"><input type="number" class="editable w-14 text-right gads-clicks" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right"><input type="number" class="editable w-16 text-right gads-impr" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right gads-ctr">0%</td>
+                                        <td class="py-3 text-right"><input type="number" class="editable w-12 text-right gads-conv" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right">$<input type="number" step="0.01" class="editable w-16 text-right gads-rev" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right font-semibold gads-roas">0x</td>
+                                        <td class="py-3 text-right"><span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-700">New</span></td>
+                                    </tr>
+                                    <tr class="border-b hover:bg-gray-50 bg-red-50" data-campaign="pmax-paused">
+                                        <td class="py-3 font-medium text-gray-500">Performance Max (Paused)</td>
+                                        <td class="py-3 text-right text-gray-400">$<input type="number" step="0.01" class="editable w-16 text-right gads-spend" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right text-gray-400"><input type="number" class="editable w-14 text-right gads-clicks" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right text-gray-400"><input type="number" class="editable w-16 text-right gads-impr" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right gads-ctr text-gray-400">0%</td>
+                                        <td class="py-3 text-right text-gray-400"><input type="number" class="editable w-12 text-right gads-conv" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right text-gray-400">$<input type="number" step="0.01" class="editable w-16 text-right gads-rev" value="0" onchange="calculateGoogleAds()"></td>
+                                        <td class="py-3 text-right font-semibold gads-roas text-gray-400">0x</td>
+                                        <td class="py-3 text-right"><span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">Paused</span></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-gray-50 font-semibold">
+                                        <td class="py-3">Google Ads Total</td>
+                                        <td class="py-3 text-right">$<span id="gadsSpendTotal">0</span></td>
+                                        <td class="py-3 text-right"><span id="gadsClicksTotal">0</span></td>
+                                        <td class="py-3 text-right"><span id="gadsImprTotal">0</span></td>
+                                        <td class="py-3 text-right"><span id="gadsCtrTotal">0</span>%</td>
+                                        <td class="py-3 text-right"><span id="gadsConvTotal">0</span></td>
+                                        <td class="py-3 text-right">$<span id="gadsRevTotal">0</span></td>
+                                        <td class="py-3 text-right text-teal-600"><span id="gadsRoasTotal">0</span>x</td>
+                                        <td class="py-3"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Two Column Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Google Analytics Section -->
+                <section>
+                    <div class="bg-white rounded-xl shadow-sm card h-full">
+                        <div class="bg-gradient-to-r from-teal-700 to-teal-600 text-white px-5 py-4 rounded-t-xl flex items-center gap-3">
+                            <i class="fas fa-chart-line text-2xl"></i>
+                            <div>
+                                <h2 class="font-semibold text-lg">Google Analytics</h2>
+                                <p class="text-teal-100 text-xs">Website Traffic & Revenue</p>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <p class="text-xs text-gray-500 uppercase">Sessions</p>
+                                    <input type="number" class="editable text-2xl font-bold w-full ga-metric" id="gaSessions" value="0" onchange="calculateTotals()">
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <p class="text-xs text-gray-500 uppercase">Users</p>
+                                    <input type="number" class="editable text-2xl font-bold w-full ga-metric" id="gaUsers" value="0" onchange="calculateTotals()">
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <p class="text-xs text-gray-500 uppercase">Bounce Rate</p>
+                                    <div class="flex items-center">
+                                        <input type="number" step="0.1" class="editable text-2xl font-bold w-20" id="gaBounce" value="0" onchange="calculateTotals()">
+                                        <span class="text-2xl font-bold">%</span>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <p class="text-xs text-gray-500 uppercase">Conv. Rate</p>
+                                    <div class="flex items-center">
+                                        <input type="number" step="0.01" class="editable text-2xl font-bold w-20" id="gaConvRate" value="0" onchange="calculateTotals()">
+                                        <span class="text-2xl font-bold">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <h3 class="font-medium text-gray-700 mb-3">Revenue by Source</h3>
+                            <table class="w-full text-sm">
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="py-2"><i class="fas fa-search text-gray-400 mr-2"></i>Organic Search</td>
+                                        <td class="py-2 text-right font-medium">$<input type="number" step="0.01" class="editable w-20 text-right ga-rev" value="0" onchange="calculateTotals()"></td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2"><i class="fab fa-google text-gray-400 mr-2"></i>Google Ads</td>
+                                        <td class="py-2 text-right font-medium">$<span id="gaGoogleAdsRev">0</span></td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2"><i class="fas fa-link text-gray-400 mr-2"></i>Direct</td>
+                                        <td class="py-2 text-right font-medium">$<input type="number" step="0.01" class="editable w-20 text-right ga-rev" value="0" onchange="calculateTotals()"></td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2"><i class="fab fa-facebook text-gray-400 mr-2"></i>Social</td>
+                                        <td class="py-2 text-right font-medium">$<input type="number" step="0.01" class="editable w-20 text-right ga-rev" value="0" onchange="calculateTotals()"></td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2"><i class="fas fa-envelope text-gray-400 mr-2"></i>Email</td>
+                                        <td class="py-2 text-right font-medium">$<input type="number" step="0.01" class="editable w-20 text-right ga-rev" value="0" onchange="calculateTotals()"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2"><i class="fas fa-globe text-gray-400 mr-2"></i>Referral</td>
+                                        <td class="py-2 text-right font-medium">$<input type="number" step="0.01" class="editable w-20 text-right ga-rev" value="0" onchange="calculateTotals()"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Facebook/Meta Section -->
+                <section>
+                    <div class="bg-white rounded-xl shadow-sm card h-full">
+                        <div class="bg-gradient-to-r from-blue-600 to-green-500 text-white px-5 py-4 rounded-t-xl flex items-center gap-3">
+                            <i class="fab fa-facebook text-2xl"></i>
+                            <div>
+                                <h2 class="font-semibold text-lg">Facebook / Instagram</h2>
+                                <p class="text-blue-100 text-xs">Social Media Performance</p>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <p class="text-xs text-gray-500 uppercase">Page Reach</p>
+                                    <input type="number" class="editable text-2xl font-bold w-full" id="fbReach" value="0" onchange="calculateTotals()">
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <p class="text-xs text-gray-500 uppercase">Engagements</p>
+                                    <input type="number" class="editable text-2xl font-bold w-full" id="fbEngagement" value="0" onchange="calculateTotals()">
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <p class="text-xs text-gray-500 uppercase">Link Clicks</p>
+                                    <input type="number" class="editable text-2xl font-bold w-full" id="fbClicks" value="0" onchange="calculateTotals()">
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-4">
+                                    <p class="text-xs text-gray-500 uppercase">New Followers</p>
+                                    <input type="number" class="editable text-2xl font-bold w-full" id="fbFollowers" value="0" onchange="calculateTotals()">
+                                </div>
+                            </div>
+                            <h3 class="font-medium text-gray-700 mb-3">Top Performing Posts</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                    <span class="text-lg">1.</span>
+                                    <input type="text" class="editable flex-1" placeholder="Post description..." id="fbPost1">
+                                    <input type="number" class="editable w-16 text-right" placeholder="Reach" id="fbPost1Reach">
+                                </div>
+                                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                    <span class="text-lg">2.</span>
+                                    <input type="text" class="editable flex-1" placeholder="Post description..." id="fbPost2">
+                                    <input type="number" class="editable w-16 text-right" placeholder="Reach" id="fbPost2Reach">
+                                </div>
+                                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                                    <span class="text-lg">3.</span>
+                                    <input type="text" class="editable flex-1" placeholder="Post description..." id="fbPost3">
+                                    <input type="number" class="editable w-16 text-right" placeholder="Reach" id="fbPost3Reach">
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                                <p class="text-xs text-blue-600 font-medium mb-1">Community Post Tip</p>
+                                <p class="text-xs text-blue-800">Community posts get 40x more reach than sales posts. Mix ratio: 3 community : 1 promotional</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Three Column Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                <!-- Email Marketing -->
+                <section>
+                    <div class="bg-white rounded-xl shadow-sm card h-full">
+                        <div class="bg-gradient-to-r from-violet-600 to-purple-500 text-white px-5 py-4 rounded-t-xl flex items-center gap-3">
+                            <i class="fas fa-envelope text-2xl"></i>
+                            <div>
+                                <h2 class="font-semibold text-lg">Email Marketing</h2>
+                                <p class="text-purple-100 text-xs">Newsletter Performance</p>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Emails Sent</span>
+                                    <input type="number" class="editable w-20 text-right font-medium" id="emailSent" value="0">
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Open Rate</span>
+                                    <div class="flex items-center">
+                                        <input type="number" step="0.1" class="editable w-16 text-right font-medium" id="emailOpenRate" value="0">
+                                        <span class="font-medium">%</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Click Rate</span>
+                                    <div class="flex items-center">
+                                        <input type="number" step="0.1" class="editable w-16 text-right font-medium" id="emailClickRate" value="0">
+                                        <span class="font-medium">%</span>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Revenue</span>
+                                    <div class="flex items-center">
+                                        <span class="font-medium">$</span>
+                                        <input type="number" step="0.01" class="editable w-20 text-right font-medium email-rev" id="emailRevenue" value="0" onchange="calculateTotals()">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Unsubscribes</span>
+                                    <input type="number" class="editable w-16 text-right font-medium" id="emailUnsubs" value="0">
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">List Size</span>
+                                    <input type="number" class="editable w-20 text-right font-medium" id="emailListSize" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Etsy -->
+                <section>
+                    <div class="bg-white rounded-xl shadow-sm card h-full">
+                        <div class="bg-gradient-to-r from-orange-600 to-orange-400 text-white px-5 py-4 rounded-t-xl flex items-center gap-3">
+                            <i class="fab fa-etsy text-2xl"></i>
+                            <div>
+                                <h2 class="font-semibold text-lg">Etsy</h2>
+                                <p class="text-orange-100 text-xs">Marketplace Performance</p>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Views</span>
+                                    <input type="number" class="editable w-20 text-right font-medium" id="etsyViews" value="0">
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Favorites</span>
+                                    <input type="number" class="editable w-16 text-right font-medium" id="etsyFavorites" value="0">
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Orders</span>
+                                    <input type="number" class="editable w-16 text-right font-medium etsy-orders" id="etsyOrders" value="0" onchange="calculateTotals()">
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Revenue</span>
+                                    <div class="flex items-center">
+                                        <span class="font-medium">$</span>
+                                        <input type="number" step="0.01" class="editable w-20 text-right font-medium etsy-rev" id="etsyRevenue" value="0" onchange="calculateTotals()">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Ad Spend</span>
+                                    <div class="flex items-center">
+                                        <span class="font-medium">$</span>
+                                        <input type="number" step="0.01" class="editable w-20 text-right font-medium etsy-spend" id="etsyAdSpend" value="0" onchange="calculateTotals()">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Etsy ROAS</span>
+                                    <span class="font-semibold text-orange-600" id="etsyRoas">0x</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Top Products -->
+                <section>
+                    <div class="bg-white rounded-xl shadow-sm card h-full">
+                        <div class="bg-gradient-to-r from-teal-700 to-teal-600 text-white px-5 py-4 rounded-t-xl flex items-center gap-3">
+                            <i class="fas fa-trophy text-2xl"></i>
+                            <div>
+                                <h2 class="font-semibold text-lg">Top Products</h2>
+                                <p class="text-teal-100 text-xs">Best Sellers This Week</p>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-6 h-6 bg-yellow-100 text-yellow-700 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                                    <input type="text" class="editable flex-1 text-sm" placeholder="Product name..." id="topProduct1" value="Mailbox Decals">
+                                    <input type="number" class="editable w-12 text-right text-sm" placeholder="Qty" id="topProduct1Qty" value="0">
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="w-6 h-6 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                                    <input type="text" class="editable flex-1 text-sm" placeholder="Product name..." id="topProduct2" value="Growth Charts">
+                                    <input type="number" class="editable w-12 text-right text-sm" placeholder="Qty" id="topProduct2Qty" value="0">
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="w-6 h-6 bg-orange-100 text-orange-700 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                                    <input type="text" class="editable flex-1 text-sm" placeholder="Product name..." id="topProduct3" value="Sensory Paths">
+                                    <input type="number" class="editable w-12 text-right text-sm" placeholder="Qty" value="0">
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="w-6 h-6 bg-gray-50 text-gray-500 rounded-full flex items-center justify-center text-xs font-bold">4</span>
+                                    <input type="text" class="editable flex-1 text-sm" placeholder="Product name..." id="topProduct4" value="">
+                                    <input type="number" class="editable w-12 text-right text-sm" placeholder="Qty" value="0">
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="w-6 h-6 bg-gray-50 text-gray-500 rounded-full flex items-center justify-center text-xs font-bold">5</span>
+                                    <input type="text" class="editable flex-1 text-sm" placeholder="Product name..." id="topProduct5" value="">
+                                    <input type="number" class="editable w-12 text-right text-sm" placeholder="Qty" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Charts Section -->
+            <section class="mb-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-xl shadow-sm card p-6">
+                        <h3 class="font-semibold text-gray-700 mb-4">Revenue by Channel</h3>
+                        <canvas id="revenueChart" height="200"></canvas>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm card p-6">
+                        <h3 class="font-semibold text-gray-700 mb-4">Ad Spend Allocation</h3>
+                        <canvas id="spendChart" height="200"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notes Section -->
+            <section class="mb-8">
+                <div class="bg-white rounded-xl shadow-sm card p-6">
+                    <h3 class="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                        <i class="fas fa-sticky-note text-teal-600"></i> Weekly Notes & Action Items
+                    </h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-sm font-medium text-gray-600 block mb-2">What Worked Well</label>
+                            <textarea id="notesWorked" class="w-full border rounded-lg p-3 text-sm h-32 focus:ring-2 focus:ring-teal-500 focus:border-teal-500" placeholder="Wins, successful campaigns, high-performing content..."></textarea>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-600 block mb-2">What Needs Improvement</label>
+                            <textarea id="notesImprove" class="w-full border rounded-lg p-3 text-sm h-32 focus:ring-2 focus:ring-teal-500 focus:border-teal-500" placeholder="Challenges, underperforming areas, issues to address..."></textarea>
+                        </div>
+                        <div class="lg:col-span-2">
+                            <label class="text-sm font-medium text-gray-600 block mb-2">Action Items for Next Week</label>
+                            <textarea id="notesActions" class="w-full border rounded-lg p-3 text-sm h-24 focus:ring-2 focus:ring-teal-500 focus:border-teal-500" placeholder="Tasks, campaigns to launch, optimizations to make..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Historical Data -->
+            <section class="mb-8 no-print">
+                <div class="bg-white rounded-xl shadow-sm card p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-700 flex items-center gap-2">
+                            <i class="fas fa-history text-teal-600"></i> Historical Data
+                        </h3>
+                        <button onclick="toggleHistory()" class="text-sm text-teal-600 hover:text-teal-800">
+                            <span id="historyToggle">Show History</span> <i class="fas fa-chevron-down ml-1"></i>
+                        </button>
+                    </div>
+                    <div id="historySection" class="hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="border-b text-left text-gray-500">
+                                        <th class="pb-2 font-medium">Week</th>
+                                        <th class="pb-2 font-medium text-right">Revenue</th>
+                                        <th class="pb-2 font-medium text-right">Ad Spend</th>
+                                        <th class="pb-2 font-medium text-right">ROAS</th>
+                                        <th class="pb-2 font-medium text-right">Orders</th>
+                                        <th class="pb-2 font-medium text-right">Sessions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTable">
+                                    <tr class="text-gray-400 text-center">
+                                        <td colspan="6" class="py-4">No historical data yet. Save your first week to start tracking.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Import Modal -->
+        <div id="importModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 no-print">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-upload text-blue-600"></i> Import Data
+                    </h2>
+                    <button onclick="closeImportModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="flex gap-2 mb-6 flex-wrap">
+                        <button onclick="selectImportPlatform('google-ads')" class="import-tab active px-4 py-2 rounded-lg text-sm font-medium transition" data-platform="google-ads">
+                            <i class="fab fa-google mr-1"></i> Google Ads
+                        </button>
+                        <button onclick="selectImportPlatform('google-analytics')" class="import-tab px-4 py-2 rounded-lg text-sm font-medium transition" data-platform="google-analytics">
+                            <i class="fas fa-chart-line mr-1"></i> Google Analytics
+                        </button>
+                        <button onclick="selectImportPlatform('facebook')" class="import-tab px-4 py-2 rounded-lg text-sm font-medium transition" data-platform="facebook">
+                            <i class="fab fa-facebook mr-1"></i> Facebook
+                        </button>
+                        <button onclick="selectImportPlatform('etsy')" class="import-tab px-4 py-2 rounded-lg text-sm font-medium transition" data-platform="etsy">
+                            <i class="fab fa-etsy mr-1"></i> Etsy
+                        </button>
+                    </div>
+                    <div id="importInstructions" class="bg-gray-50 rounded-lg p-4 mb-6">
+                        <h3 class="font-medium text-gray-700 mb-2">How to export from Google Ads:</h3>
+                        <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                            <li>Go to <strong>Campaigns</strong> in Google Ads</li>
+                            <li>Select your date range (top right)</li>
+                            <li>Click the <strong>Download</strong> icon (arrow pointing down)</li>
+                            <li>Choose <strong>.csv</strong> format</li>
+                            <li>Upload the file below</li>
+                        </ol>
+                    </div>
+                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition cursor-pointer" onclick="document.getElementById('csvFileInput').click()">
+                        <input type="file" id="csvFileInput" accept=".csv" class="hidden" onchange="handleFileUpload(event)">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600 font-medium">Drop CSV file here or click to browse</p>
+                        <p class="text-gray-400 text-sm mt-1">Supports Google Ads, Analytics, Facebook, and Etsy exports</p>
+                    </div>
+                    <div id="importPreview" class="hidden mt-6">
+                        <h3 class="font-medium text-gray-700 mb-3">Preview:</h3>
+                        <div class="bg-gray-50 rounded-lg p-4 overflow-x-auto">
+                            <table class="w-full text-sm" id="previewTable">
+                                <thead id="previewHead"></thead>
+                                <tbody id="previewBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4 flex justify-end gap-3">
+                            <button onclick="closeImportModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">Cancel</button>
+                            <button onclick="confirmImport()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                <i class="fas fa-check mr-1"></i> Import Data
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-sm text-gray-500 mb-2">Or paste CSV data directly:</p>
+                        <textarea id="csvPasteArea" class="w-full border rounded-lg p-3 text-sm h-32 font-mono" placeholder="Paste CSV data here..."></textarea>
+                        <button onclick="handlePastedData()" class="mt-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm">
+                            <i class="fas fa-paste mr-1"></i> Process Pasted Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white py-6 no-print">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <img src="https://cdn11.bigcommerce.com/s-571px4/images/stencil/250x91/2024_website_logo_neutrals_3_1703106810__96240.original.png"
+                     alt="WDPM Logo" class="h-8 mx-auto mb-2" style="filter: brightness(0) invert(1);">
+                <p class="text-gray-400 text-sm">Marketing Dashboard &copy; 2025 Wall Decor Plus More</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Password protection
+        const correctPassword = 'wdpm2025';
+
+        function checkPassword(event) {
+            event.preventDefault();
+            const input = document.getElementById('passwordInput').value;
+            if (input === correctPassword) {
+                document.getElementById('password-overlay').style.display = 'none';
+                document.getElementById('main-content').classList.remove('content-hidden');
+                sessionStorage.setItem('wdpm_authenticated', 'true');
+                initializeDashboard();
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        // Check if already authenticated
+        if (sessionStorage.getItem('wdpm_authenticated') === 'true') {
+            document.getElementById('password-overlay').style.display = 'none';
+            document.getElementById('main-content').classList.remove('content-hidden');
+            document.addEventListener('DOMContentLoaded', initializeDashboard);
+        }
+
+        function initializeDashboard() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const week = getWeekNumber(now);
+            document.getElementById('reportWeek').value = `${year}-W${String(week).padStart(2, '0')}`;
+            loadData();
+            initCharts();
+            calculateTotals();
+        }
+
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        let revenueChart, spendChart;
+
+        function initCharts() {
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            revenueChart = new Chart(revenueCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Google Ads', 'Organic', 'Direct', 'Social', 'Email', 'Etsy', 'Referral'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: ['#0d9488', '#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#f56200', '#6b7280']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'right' } } }
+            });
+
+            const spendCtx = document.getElementById('spendChart').getContext('2d');
+            spendChart = new Chart(spendCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Google Ads', 'Etsy Ads', 'Facebook Ads'],
+                    datasets: [
+                        { label: 'Spend', data: [0, 0, 0], backgroundColor: ['#0d9488', '#f56200', '#1877f2'] },
+                        { label: 'Revenue', data: [0, 0, 0], backgroundColor: ['#5eead4', '#fed7aa', '#93c5fd'] }
+                    ]
+                },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        function calculateGoogleAds() {
+            const rows = document.querySelectorAll('#googleAdsCampaigns tr');
+            let totalSpend = 0, totalClicks = 0, totalImpr = 0, totalConv = 0, totalRev = 0;
+            rows.forEach(row => {
+                const spend = parseFloat(row.querySelector('.gads-spend')?.value) || 0;
+                const clicks = parseInt(row.querySelector('.gads-clicks')?.value) || 0;
+                const impr = parseInt(row.querySelector('.gads-impr')?.value) || 0;
+                const conv = parseInt(row.querySelector('.gads-conv')?.value) || 0;
+                const rev = parseFloat(row.querySelector('.gads-rev')?.value) || 0;
+                const ctr = impr > 0 ? ((clicks / impr) * 100).toFixed(2) : 0;
+                row.querySelector('.gads-ctr').textContent = ctr + '%';
+                const roas = spend > 0 ? (rev / spend).toFixed(2) : 0;
+                const roasEl = row.querySelector('.gads-roas');
+                roasEl.textContent = roas + 'x';
+                roasEl.className = 'py-3 text-right font-semibold gads-roas ' + (roas >= 2.5 ? 'text-green-600' : roas >= 1.5 ? 'text-yellow-600' : roas > 0 ? 'text-red-600' : '');
+                totalSpend += spend; totalClicks += clicks; totalImpr += impr; totalConv += conv; totalRev += rev;
+            });
+            document.getElementById('gadsSpendTotal').textContent = totalSpend.toFixed(2);
+            document.getElementById('gadsClicksTotal').textContent = totalClicks;
+            document.getElementById('gadsImprTotal').textContent = totalImpr.toLocaleString();
+            document.getElementById('gadsCtrTotal').textContent = totalImpr > 0 ? ((totalClicks / totalImpr) * 100).toFixed(2) : 0;
+            document.getElementById('gadsConvTotal').textContent = totalConv;
+            document.getElementById('gadsRevTotal').textContent = totalRev.toFixed(2);
+            document.getElementById('gadsRoasTotal').textContent = totalSpend > 0 ? (totalRev / totalSpend).toFixed(2) : 0;
+            document.getElementById('gaGoogleAdsRev').textContent = totalRev.toFixed(2);
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            const gadsRev = parseFloat(document.getElementById('gadsRevTotal').textContent) || 0;
+            const gadsSpend = parseFloat(document.getElementById('gadsSpendTotal').textContent) || 0;
+            const gadsConv = parseInt(document.getElementById('gadsConvTotal').textContent) || 0;
+            const gaRevInputs = document.querySelectorAll('.ga-rev');
+            let gaRev = gadsRev;
+            gaRevInputs.forEach(input => gaRev += parseFloat(input.value) || 0);
+            const etsyRev = parseFloat(document.getElementById('etsyRevenue').value) || 0;
+            const etsySpend = parseFloat(document.getElementById('etsyAdSpend').value) || 0;
+            const etsyOrders = parseInt(document.getElementById('etsyOrders').value) || 0;
+            document.getElementById('etsyRoas').textContent = etsySpend > 0 ? (etsyRev / etsySpend).toFixed(2) + 'x' : '0x';
+            const totalRevenue = gaRev + etsyRev;
+            const totalSpend = gadsSpend + etsySpend;
+            const totalOrders = gadsConv + etsyOrders;
+            document.getElementById('totalRevenue').textContent = totalRevenue.toFixed(2);
+            document.getElementById('totalSpend').textContent = totalSpend.toFixed(2);
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('blendedRoas').textContent = totalSpend > 0 ? (totalRevenue / totalSpend).toFixed(2) : '0';
+            updateTargets();
+            updateCharts(gadsRev, etsyRev, totalSpend, etsySpend);
+        }
+
+        function updateTargets() {
+            const totalRevenue = parseFloat(document.getElementById('totalRevenue').textContent) || 0;
+            const blendedRoas = parseFloat(document.getElementById('blendedRoas').textContent) || 0;
+            const totalOrders = parseInt(document.getElementById('totalOrders').textContent) || 0;
+            const totalSpend = parseFloat(document.getElementById('totalSpend').textContent) || 0;
+            const revenueGoal = parseFloat(document.getElementById('revenueGoal').value) || 1;
+            const roasGoal = parseFloat(document.getElementById('roasGoal').value) || 1;
+            const ordersGoal = parseInt(document.getElementById('ordersGoal').value) || 1;
+            const cpoGoal = parseFloat(document.getElementById('cpoGoal').value) || 1;
+            const revenuePercent = Math.min((totalRevenue / revenueGoal) * 100, 100);
+            const roasPercent = Math.min((blendedRoas / roasGoal) * 100, 100);
+            const ordersPercent = Math.min((totalOrders / ordersGoal) * 100, 100);
+            const cpoActual = totalOrders > 0 ? (totalSpend / totalOrders) : 0;
+            document.getElementById('revenueBar').style.width = revenuePercent + '%';
+            document.getElementById('revenuePercent').textContent = revenuePercent.toFixed(0);
+            document.getElementById('roasBar').style.width = roasPercent + '%';
+            document.getElementById('roasPercent').textContent = roasPercent.toFixed(0);
+            document.getElementById('ordersBar').style.width = ordersPercent + '%';
+            document.getElementById('ordersPercent').textContent = ordersPercent.toFixed(0);
+            document.getElementById('cpoBar').style.width = cpoActual <= cpoGoal ? '100' : Math.max(0, 100 - ((cpoActual - cpoGoal) / cpoGoal * 100)) + '%';
+            document.getElementById('cpoActual').textContent = cpoActual.toFixed(2);
+        }
+
+        function updateCharts(gadsRev, etsyRev, totalSpend, etsySpend) {
+            const gaRevInputs = document.querySelectorAll('.ga-rev');
+            const revenues = [gadsRev];
+            gaRevInputs.forEach(input => revenues.push(parseFloat(input.value) || 0));
+            revenues.push(etsyRev);
+            revenueChart.data.datasets[0].data = revenues;
+            revenueChart.update();
+            const gadsSpend = parseFloat(document.getElementById('gadsSpendTotal').textContent) || 0;
+            spendChart.data.datasets[0].data = [gadsSpend, etsySpend, 0];
+            spendChart.data.datasets[1].data = [gadsRev, etsyRev, 0];
+            spendChart.update();
+        }
+
+        function saveData() {
+            const week = document.getElementById('reportWeek').value;
+            const data = { week: week, timestamp: new Date().toISOString(), inputs: {} };
+            document.querySelectorAll('input, textarea').forEach(input => { if (input.id) data.inputs[input.id] = input.value; });
+            localStorage.setItem(`wdpm_dashboard_${week}`, JSON.stringify(data));
+            let history = JSON.parse(localStorage.getItem('wdpm_dashboard_history') || '[]');
+            const existingIndex = history.findIndex(h => h.week === week);
+            const historyEntry = {
+                week: week,
+                revenue: parseFloat(document.getElementById('totalRevenue').textContent) || 0,
+                spend: parseFloat(document.getElementById('totalSpend').textContent) || 0,
+                roas: parseFloat(document.getElementById('blendedRoas').textContent) || 0,
+                orders: parseInt(document.getElementById('totalOrders').textContent) || 0,
+                sessions: parseInt(document.getElementById('gaSessions').value) || 0
+            };
+            if (existingIndex >= 0) history[existingIndex] = historyEntry; else history.push(historyEntry);
+            history.sort((a, b) => b.week.localeCompare(a.week));
+            localStorage.setItem('wdpm_dashboard_history', JSON.stringify(history));
+            updateHistoryTable();
+            alert('Dashboard saved for ' + week);
+        }
+
+        function loadData() {
+            const week = document.getElementById('reportWeek').value;
+            const saved = localStorage.getItem(`wdpm_dashboard_${week}`);
+            if (saved) {
+                const data = JSON.parse(saved);
+                Object.keys(data.inputs).forEach(id => { const el = document.getElementById(id); if (el) el.value = data.inputs[id]; });
+                calculateGoogleAds();
+            }
+            updateHistoryTable();
+        }
+
+        function updateWeekDisplay() { loadData(); }
+
+        function updateHistoryTable() {
+            const history = JSON.parse(localStorage.getItem('wdpm_dashboard_history') || '[]');
+            const tbody = document.getElementById('historyTable');
+            if (history.length === 0) {
+                tbody.innerHTML = '<tr class="text-gray-400 text-center"><td colspan="6" class="py-4">No historical data yet.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = history.map(h => `<tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="document.getElementById('reportWeek').value='${h.week}'; loadData();"><td class="py-2">${h.week}</td><td class="py-2 text-right">$${h.revenue.toFixed(2)}</td><td class="py-2 text-right">$${h.spend.toFixed(2)}</td><td class="py-2 text-right ${h.roas >= 2.5 ? 'text-green-600' : h.roas >= 1.5 ? 'text-yellow-600' : 'text-red-600'}">${h.roas.toFixed(2)}x</td><td class="py-2 text-right">${h.orders}</td><td class="py-2 text-right">${h.sessions.toLocaleString()}</td></tr>`).join('');
+        }
+
+        function toggleHistory() {
+            const section = document.getElementById('historySection');
+            const toggle = document.getElementById('historyToggle');
+            section.classList.toggle('hidden');
+            toggle.textContent = section.classList.contains('hidden') ? 'Show History' : 'Hide History';
+        }
+
+        function exportData() {
+            const week = document.getElementById('reportWeek').value;
+            const data = {
+                week: week,
+                summary: { totalRevenue: document.getElementById('totalRevenue').textContent, totalSpend: document.getElementById('totalSpend').textContent, blendedRoas: document.getElementById('blendedRoas').textContent, totalOrders: document.getElementById('totalOrders').textContent },
+                googleAds: { spend: document.getElementById('gadsSpendTotal').textContent, revenue: document.getElementById('gadsRevTotal').textContent, roas: document.getElementById('gadsRoasTotal').textContent, conversions: document.getElementById('gadsConvTotal').textContent },
+                etsy: { revenue: document.getElementById('etsyRevenue').value, spend: document.getElementById('etsyAdSpend').value, orders: document.getElementById('etsyOrders').value },
+                notes: { worked: document.getElementById('notesWorked').value, improve: document.getElementById('notesImprove').value, actions: document.getElementById('notesActions').value }
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `wdpm-marketing-${week}.json`; a.click();
+        }
+
+        // CSV Import
+        let currentPlatform = 'google-ads';
+        let parsedCSVData = null;
+        const platformInstructions = {
+            'google-ads': { title: 'How to export from Google Ads:', steps: ['Go to <strong>Campaigns</strong> in Google Ads', 'Select your date range', 'Click the <strong>Download</strong> icon', 'Choose <strong>.csv</strong> format', 'Upload below'] },
+            'google-analytics': { title: 'How to export from Google Analytics:', steps: ['Go to <strong>Reports > Acquisition</strong>', 'Select your date range', 'Click <strong>Share this report</strong>', 'Choose <strong>Download CSV</strong>', 'Upload below'] },
+            'facebook': { title: 'How to export from Facebook:', steps: ['Go to your <strong>Facebook Page</strong>', 'Click <strong>Insights</strong>', 'Click <strong>Export Data</strong>', 'Download CSV', 'Upload below'] },
+            'etsy': { title: 'How to export from Etsy:', steps: ['Go to <strong>Shop Manager > Stats</strong>', 'Select date range', 'Click <strong>Download CSV</strong>', 'Upload below'] }
+        };
+
+        function openImportModal() { document.getElementById('importModal').classList.remove('hidden'); document.getElementById('importModal').classList.add('flex'); document.getElementById('importPreview').classList.add('hidden'); document.getElementById('csvPasteArea').value = ''; parsedCSVData = null; }
+        function closeImportModal() { document.getElementById('importModal').classList.add('hidden'); document.getElementById('importModal').classList.remove('flex'); }
+        function selectImportPlatform(platform) {
+            currentPlatform = platform;
+            document.querySelectorAll('.import-tab').forEach(tab => { tab.classList.remove('active'); if (tab.dataset.platform === platform) tab.classList.add('active'); });
+            const instructions = platformInstructions[platform];
+            document.getElementById('importInstructions').innerHTML = `<h3 class="font-medium text-gray-700 mb-2">${instructions.title}</h3><ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">${instructions.steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
+        }
+        function handleFileUpload(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { parseCSV(e.target.result); }; reader.readAsText(file); }
+        function handlePastedData() { const data = document.getElementById('csvPasteArea').value; if (data.trim()) parseCSV(data); }
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n'); if (lines.length < 2) { alert('Invalid CSV'); return; }
+            const headers = parseCSVLine(lines[0]); const data = [];
+            for (let i = 1; i < lines.length; i++) { if (lines[i].trim()) { const values = parseCSVLine(lines[i]); const row = {}; headers.forEach((h, idx) => { row[h.toLowerCase().trim()] = values[idx] || ''; }); data.push(row); } }
+            parsedCSVData = { headers, data }; showPreview(headers, data);
+        }
+        function parseCSVLine(line) { const result = []; let current = ''; let inQuotes = false; for (let i = 0; i < line.length; i++) { const char = line[i]; if (char === '"') inQuotes = !inQuotes; else if (char === ',' && !inQuotes) { result.push(current.trim()); current = ''; } else current += char; } result.push(current.trim()); return result; }
+        function showPreview(headers, data) {
+            const previewHead = document.getElementById('previewHead'); const previewBody = document.getElementById('previewBody');
+            const previewData = data.slice(0, 5);
+            previewHead.innerHTML = `<tr class="border-b">${headers.slice(0, 6).map(h => `<th class="p-2 text-left text-xs font-medium text-gray-500">${h}</th>`).join('')}</tr>`;
+            previewBody.innerHTML = previewData.map(row => `<tr class="border-b">${headers.slice(0, 6).map(h => `<td class="p-2 text-xs">${row[h.toLowerCase().trim()] || '-'}</td>`).join('')}</tr>`).join('');
+            document.getElementById('importPreview').classList.remove('hidden');
+        }
+        function confirmImport() { if (!parsedCSVData) { alert('No data'); return; } switch (currentPlatform) { case 'google-ads': importGoogleAds(parsedCSVData.data); break; case 'google-analytics': importGoogleAnalytics(parsedCSVData.data); break; case 'facebook': importFacebook(parsedCSVData.data); break; case 'etsy': importEtsy(parsedCSVData.data); break; } closeImportModal(); alert('Data imported!'); }
+        function importGoogleAds(data) { const rows = document.querySelectorAll('#googleAdsCampaigns tr'); data.forEach((row, idx) => { const spend = parseNumber(findValue(row, ['cost', 'spend'])); const clicks = parseNumber(findValue(row, ['clicks'])); const impr = parseNumber(findValue(row, ['impressions', 'impr'])); const conv = parseNumber(findValue(row, ['conversions', 'conv'])); const rev = parseNumber(findValue(row, ['conv. value', 'revenue', 'value'])); const campaignName = findValue(row, ['campaign']); if (campaignName && !campaignName.toLowerCase().includes('total') && idx < rows.length) { const rowEl = rows[idx]; if (rowEl.querySelector('.gads-spend')) rowEl.querySelector('.gads-spend').value = spend.toFixed(2); if (rowEl.querySelector('.gads-clicks')) rowEl.querySelector('.gads-clicks').value = clicks; if (rowEl.querySelector('.gads-impr')) rowEl.querySelector('.gads-impr').value = impr; if (rowEl.querySelector('.gads-conv')) rowEl.querySelector('.gads-conv').value = conv; if (rowEl.querySelector('.gads-rev')) rowEl.querySelector('.gads-rev').value = rev.toFixed(2); } }); calculateGoogleAds(); }
+        function importGoogleAnalytics(data) { let totalSessions = 0, totalUsers = 0; data.forEach(row => { totalSessions += parseNumber(findValue(row, ['sessions'])); totalUsers += parseNumber(findValue(row, ['users'])); }); document.getElementById('gaSessions').value = totalSessions; document.getElementById('gaUsers').value = totalUsers; calculateTotals(); }
+        function importFacebook(data) { let totalReach = 0, totalEngagement = 0, totalClicks = 0; data.forEach(row => { totalReach += parseNumber(findValue(row, ['reach'])); totalEngagement += parseNumber(findValue(row, ['engagements', 'engagement'])); totalClicks += parseNumber(findValue(row, ['link clicks', 'clicks'])); }); document.getElementById('fbReach').value = totalReach; document.getElementById('fbEngagement').value = totalEngagement; document.getElementById('fbClicks').value = totalClicks; calculateTotals(); }
+        function importEtsy(data) { let totalViews = 0, totalFavorites = 0, totalOrders = 0, totalRevenue = 0; data.forEach(row => { totalViews += parseNumber(findValue(row, ['views', 'visits'])); totalFavorites += parseNumber(findValue(row, ['favorites'])); totalOrders += parseNumber(findValue(row, ['orders', 'sales'])); totalRevenue += parseNumber(findValue(row, ['revenue', 'total'])); }); document.getElementById('etsyViews').value = totalViews; document.getElementById('etsyFavorites').value = totalFavorites; document.getElementById('etsyOrders').value = totalOrders; document.getElementById('etsyRevenue').value = totalRevenue.toFixed(2); calculateTotals(); }
+        function findValue(row, possibleKeys) { for (const key of possibleKeys) { for (const rowKey of Object.keys(row)) { if (rowKey.toLowerCase().includes(key.toLowerCase())) return row[rowKey]; } } return ''; }
+        function parseNumber(value) { if (!value) return 0; const cleaned = String(value).replace(/[$,€£%]/g, '').trim(); const num = parseFloat(cleaned); return isNaN(num) ? 0 : num; }
+    </script>
+</body>
+</html>
