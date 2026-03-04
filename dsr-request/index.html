@@ -1557,7 +1557,29 @@
     validateForm();
   }
 
-  function submitContract() {
+  const WEB3FORMS_KEY = '5e9a8675-ffe2-49b8-97c2-c284d9c0f8b5';
+
+  async function sendEmail(subject, message) {
+    try {
+      const resp = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: subject,
+          message: message,
+          from_name: 'DSR Client Portal',
+        })
+      });
+      const result = await resp.json();
+      return result.success;
+    } catch (err) {
+      console.error('Email send failed:', err);
+      return false;
+    }
+  }
+
+  async function submitContract() {
     const now = new Date();
     const submitDate = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const submitTime = now.toLocaleTimeString('en-US');
@@ -1568,8 +1590,8 @@
     document.querySelectorAll('.sig-input').forEach(el => { el.readOnly = true; el.style.background = '#f9f9f9'; });
     agreeCheck.disabled = true;
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Agreement Signed';
-    submitBtn.style.background = '#27ae60';
+    submitBtn.textContent = 'Submitting...';
+    submitBtn.style.background = '#888';
     document.querySelector('.clear-sig').style.display = 'none';
     document.getElementById('sig-toggle').style.display = 'none';
 
@@ -1590,9 +1612,39 @@
       contractData.signature_image = canvas.toDataURL('image/png');
     }
 
+    // Send email notification
+    const emailBody =
+      'CONTRACT SIGNED — Dakota Sales & Rental LLC\n' +
+      '============================================\n\n' +
+      'Name: ' + contractData.client_name + '\n' +
+      'Title: ' + contractData.client_title + '\n' +
+      'Email: ' + contractData.client_email + '\n' +
+      'Signature Type: ' + contractData.signature_type + '\n' +
+      (contractData.signature_type === 'typed' ? 'Typed Signature: ' + contractData.client_signature + '\n' : '') +
+      'Date: ' + contractData.signed_date + '\n' +
+      'Time: ' + contractData.signed_time + '\n' +
+      'Timestamp: ' + contractData.signed_timestamp + '\n\n' +
+      'Monthly Fee: ' + contractData.monthly_fee + '\n' +
+      'Overage Rate: ' + contractData.overage_rate + '\n\n' +
+      'Agreement: Monthly Services Agreement (Website Maintenance, Facebook Marketing, Graphic Design)\n' +
+      'Term: 6-month minimum commitment\n\n' +
+      '— Sent from DSR Client Portal (thedevside.com/dsr-request)';
+
+    const emailSent = await sendEmail(
+      'CONTRACT SIGNED — Dakota Sales & Rental LLC — ' + submitDate,
+      emailBody
+    );
+
+    submitBtn.textContent = 'Agreement Signed';
+    submitBtn.style.background = '#27ae60';
+
     const statusEl = document.getElementById('status-msg');
     statusEl.className = 'status-msg success';
     statusEl.innerHTML = 'Agreement signed successfully by <strong>' + contractData.client_name + '</strong> on ' + submitDate + ' at ' + submitTime + '.<br><br>A copy of this signed agreement should be saved or printed for your records.';
+
+    if (!emailSent) {
+      statusEl.innerHTML += '<br><small style="color:#856404;">Note: Email notification could not be sent. Please save or print a copy for your records.</small>';
+    }
 
     document.getElementById('timestamp').textContent = 'Digitally signed: ' + now.toISOString();
     localStorage.setItem('contract_dsr_2026_monthly', JSON.stringify(contractData));
@@ -1627,32 +1679,59 @@
   }
 
   // ========== QUESTIONNAIRE ==========
-  function submitQuestionnaire(e) {
+  async function submitQuestionnaire(e) {
     e.preventDefault();
+
+    const btn = document.getElementById('questionnaire-btn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    btn.style.background = '#888';
 
     const data = {
       goals: document.getElementById('q-goals').value.trim(),
       website: document.getElementById('q-website').value.trim(),
       facebook: document.getElementById('q-facebook').value.trim(),
-      content_method: document.querySelector('input[name="content-method"]:checked')?.value || '',
-      post_day: document.querySelector('input[name="post-day"]:checked')?.value || '',
+      content_method: document.querySelector('input[name="content-method"]:checked')?.value || 'Not specified',
+      post_day: document.querySelector('input[name="post-day"]:checked')?.value || 'Not specified',
       flyer: document.getElementById('q-flyer').value.trim(),
       anything: document.getElementById('q-anything').value.trim(),
       submitted: new Date().toISOString()
     };
 
+    // Send email notification
+    const emailBody =
+      'QUESTIONNAIRE SUBMITTED — Dakota Sales & Rental LLC\n' +
+      '====================================================\n\n' +
+      'Online Presence Goals:\n' + (data.goals || '(not provided)') + '\n\n' +
+      'Website Updates Needed:\n' + (data.website || '(not provided)') + '\n\n' +
+      'Facebook Post Preferences:\n' + (data.facebook || '(not provided)') + '\n\n' +
+      'Content Delivery Method: ' + data.content_method + '\n' +
+      'Preferred Post Day: ' + data.post_day + '\n\n' +
+      'Upcoming Events/Flyer Needs:\n' + (data.flyer || '(not provided)') + '\n\n' +
+      'Other Notes:\n' + (data.anything || '(not provided)') + '\n\n' +
+      'Submitted: ' + data.submitted + '\n\n' +
+      '— Sent from DSR Client Portal (thedevside.com/dsr-request)';
+
+    const emailSent = await sendEmail(
+      'Getting Started Responses — Dakota Sales & Rental LLC',
+      emailBody
+    );
+
     localStorage.setItem('questionnaire_dsr_2026_monthly', JSON.stringify(data));
     console.log('QUESTIONNAIRE SUBMITTED:', data);
 
     document.querySelectorAll('#intake-form input, #intake-form textarea').forEach(el => { el.disabled = true; el.style.opacity = '0.7'; });
-    const btn = document.getElementById('questionnaire-btn');
-    btn.disabled = true;
     btn.textContent = 'Responses Submitted';
     btn.style.background = '#27ae60';
 
     const statusEl = document.getElementById('q-status-msg');
     statusEl.className = 'status-msg success';
     statusEl.innerHTML = 'Thank you! Your responses have been submitted. We\'ll review these and get your services started.';
+
+    if (!emailSent) {
+      statusEl.innerHTML += '<br><small style="color:#856404;">Note: Email notification could not be sent, but your responses have been saved.</small>';
+    }
+
     statusEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
