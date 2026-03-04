@@ -6,7 +6,7 @@
 <title>Dakota Sales &amp; Rental LLC &mdash; Monthly Services Proposal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   /* ========== PASSWORD GATE ========== */
   .auth-gate {
@@ -17,69 +17,331 @@
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    overflow: hidden;
   }
   .auth-gate.hidden { display: none; }
-  .auth-box {
-    background: #fff;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 30px rgba(0,0,0,0.3);
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
+
+  /* Background grid + glow atmosphere */
+  .auth-gate::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 20h40M20 0v40' stroke='%2300d4ff' stroke-width='0.3' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
   }
-  .auth-box h2 {
-    color: #1a3a5c;
-    font-family: 'Space Grotesk', 'Inter', sans-serif;
-    font-size: 22px;
+  .auth-gate::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 50% 40% at 50% 35%, rgba(0, 212, 255, 0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 35% 50% at 30% 70%, rgba(0, 255, 136, 0.03) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 75% 60%, rgba(0, 180, 216, 0.04) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Glass card */
+  .auth-card {
+    position: relative;
+    z-index: 1;
+    width: 90%;
+    max-width: 420px;
+    background: rgba(13, 17, 23, 0.85);
+    border: 1px solid rgba(0, 212, 255, 0.12);
+    border-radius: 12px;
+    padding: 48px 40px 40px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow:
+      0 0 40px rgba(0, 212, 255, 0.06),
+      0 20px 60px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    opacity: 0;
+    animation: authFadeUp 0.5s ease-out 0.15s forwards;
+  }
+
+  /* Top accent line */
+  .auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 32px;
+    right: 32px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00d4ff, #00ff88, transparent);
+    border-radius: 0 0 2px 2px;
+    opacity: 0.7;
+  }
+
+  /* Logo + brand */
+  .auth-brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: authFadeUp 0.5s ease-out 0.3s forwards;
+  }
+  .auth-brand-icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: #00d4ff;
+    background: rgba(0, 212, 255, 0.08);
+    border: 1px solid rgba(0, 212, 255, 0.15);
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .auth-brand-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #e8e8e8;
+    letter-spacing: 0.3px;
+  }
+
+  /* Heading area */
+  .auth-heading-area {
+    text-align: center;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: authFadeUp 0.5s ease-out 0.4s forwards;
+  }
+  .auth-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #00ff88;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .auth-tag::before,
+  .auth-tag::after {
+    content: '';
+    width: 20px;
+    height: 1px;
+    background: rgba(0, 255, 136, 0.3);
+  }
+  .auth-heading {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #e8e8e8;
     margin: 0 0 6px 0;
     border: none;
   }
-  .auth-box .auth-sub {
-    color: #888;
-    font-size: 14px;
-    margin-bottom: 24px;
-  }
-  .auth-box input[type="password"] {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.2s;
-    margin-bottom: 12px;
-  }
-  .auth-box input[type="password"]:focus { border-color: #1a3a5c; }
-  .auth-box button {
-    width: 100%;
-    padding: 12px;
-    background: #1a3a5c;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.2s;
-  }
-  .auth-box button:hover { background: #2a5a8c; }
-  .auth-error {
-    color: #e74c3c;
+  .auth-subtext {
+    font-family: 'Inter', sans-serif;
     font-size: 13px;
-    margin-top: 10px;
-    display: none;
+    color: #666;
+    margin: 0;
+    line-height: 1.5;
   }
-  .auth-brand {
-    color: #00d4ff;
-    font-size: 11px;
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+
+  /* Form */
+  .auth-form-area {
+    opacity: 0;
+    animation: authFadeUp 0.5s ease-out 0.5s forwards;
+  }
+  .auth-input-group {
+    position: relative;
     margin-bottom: 16px;
   }
+  .auth-input-group label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: #a0a0a0;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .auth-input-group input[type="password"] {
+    width: 100%;
+    padding: 13px 44px 13px 16px;
+    border: 1.5px solid rgba(0, 212, 255, 0.15);
+    border-radius: 8px;
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    color: #e8e8e8;
+    background: rgba(10, 10, 15, 0.6);
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  .auth-input-group input[type="password"]:focus {
+    border-color: #00d4ff;
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1), 0 0 20px rgba(0, 212, 255, 0.05);
+  }
+  .auth-input-group input[type="password"]::placeholder {
+    color: #444;
+    font-size: 14px;
+  }
+  .auth-input-icon {
+    position: absolute;
+    right: 14px;
+    bottom: 13px;
+    width: 18px;
+    height: 18px;
+    color: #444;
+    pointer-events: none;
+    transition: color 0.25s;
+  }
+  .auth-input-group input[type="password"]:focus ~ .auth-input-icon {
+    color: #00d4ff;
+  }
+
+  .auth-submit-btn {
+    width: 100%;
+    padding: 13px 24px;
+    background: linear-gradient(135deg, #00b4d8, #00d4ff);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.25s, opacity 0.25s;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+  }
+  .auth-submit-btn:hover {
+    box-shadow: 0 0 24px rgba(0, 212, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+  }
+  .auth-submit-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+  }
+
+  /* Error */
+  .auth-error {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: rgba(255, 71, 87, 0.08);
+    border: 1px solid rgba(255, 71, 87, 0.2);
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #ff4757;
+    line-height: 1.4;
+  }
+  .auth-error.visible { display: flex; }
+  .auth-error svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Footer */
+  .auth-card-footer {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: center;
+    opacity: 0;
+    animation: authFadeUp 0.5s ease-out 0.6s forwards;
+  }
+  .auth-card-footer p {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #666;
+    margin: 2px 0;
+    line-height: 1.5;
+  }
+  .auth-card-footer a {
+    color: #00d4ff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .auth-card-footer a:hover {
+    color: #00ff88;
+  }
+
+  /* Bottom secure badge */
+  .auth-secure-badge {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 1;
+    opacity: 0;
+    animation: authFadeUp 0.5s ease-out 0.7s forwards;
+  }
+  .auth-secure-badge p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #333;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .auth-secure-badge svg {
+    width: 12px;
+    height: 12px;
+    color: #00d4ff;
+    opacity: 0.4;
+  }
+
+  @keyframes authFadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes authShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+  .auth-input-group.shake input {
+    animation: authShake 0.4s ease;
+    border-color: #ff4757 !important;
+    box-shadow: 0 0 12px rgba(255, 71, 87, 0.15) !important;
+  }
+
+  /* Auth mobile */
+  @media (max-width: 520px) {
+    .auth-card {
+      padding: 40px 24px 32px;
+      border-radius: 10px;
+    }
+    .auth-heading { font-size: 20px; }
+    .auth-secure-badge { bottom: 16px; }
+  }
+
+  /* Unlock transition */
+  .auth-gate.unlocking {
+    animation: authUnlock 0.5s ease forwards;
+  }
+  @keyframes authUnlock {
+    0% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.02); pointer-events: none; }
+  }
+
   .app-content.locked { display: none; }
 
   * { box-sizing: border-box; }
@@ -557,16 +819,53 @@
 
 <!-- ========== PASSWORD GATE ========== -->
 <div class="auth-gate" id="auth-gate">
-  <div class="auth-box">
-    <div class="auth-brand">&lt;/&gt; The Dev Side</div>
-    <h2>Client Portal</h2>
-    <p class="auth-sub">Enter your password to view this proposal</p>
-    <form onsubmit="checkPassword(event)">
-      <input type="password" id="auth-password" placeholder="Password" autocomplete="off" autofocus>
-      <button type="submit">Access Proposal</button>
-    </form>
-    <p class="auth-error" id="auth-error">Incorrect password. Please try again.</p>
+
+  <div class="auth-card">
+    <!-- Brand -->
+    <div class="auth-brand-row">
+      <div class="auth-brand-icon">&lt;/&gt;</div>
+      <span class="auth-brand-text">The Dev Side</span>
+    </div>
+
+    <!-- Heading -->
+    <div class="auth-heading-area">
+      <p class="auth-tag">Client Portal</p>
+      <h2 class="auth-heading">Access Your Proposal</h2>
+      <p class="auth-subtext">Enter the password provided to you to continue.</p>
+    </div>
+
+    <!-- Form -->
+    <div class="auth-form-area">
+      <form onsubmit="checkPassword(event)" autocomplete="off">
+        <div class="auth-input-group" id="auth-input-group">
+          <label for="auth-password">Password</label>
+          <input type="password" id="auth-password" placeholder="Enter your password" autocomplete="off" autofocus>
+          <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <button type="submit" class="auth-submit-btn">Access Proposal</button>
+      </form>
+
+      <div class="auth-error" id="auth-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span>Incorrect password. Please check and try again.</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="auth-card-footer">
+      <p>Need access? Reach out at</p>
+      <p><a href="mailto:info@thedevside.com">info@thedevside.com</a></p>
+    </div>
   </div>
+
+  <!-- Bottom badge -->
+  <div class="auth-secure-badge">
+    <p>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Secure &bull; Confidential &bull; thedevside.com
+    </p>
+  </div>
+
 </div>
 
 <div class="app-content locked" id="app-content">
@@ -1400,10 +1699,19 @@
     const hash = await sha256(input);
     if (hash === PASS_HASH) {
       sessionStorage.setItem('dsr_auth', 'true');
-      document.getElementById('auth-gate').classList.add('hidden');
-      document.getElementById('app-content').classList.remove('locked');
+      const gate = document.getElementById('auth-gate');
+      gate.classList.add('unlocking');
+      gate.addEventListener('animationend', function() {
+        gate.classList.add('hidden');
+        gate.classList.remove('unlocking');
+        document.getElementById('app-content').classList.remove('locked');
+      }, { once: true });
     } else {
-      document.getElementById('auth-error').style.display = 'block';
+      document.getElementById('auth-error').classList.add('visible');
+      const inputGroup = document.getElementById('auth-input-group');
+      inputGroup.classList.remove('shake');
+      void inputGroup.offsetWidth;
+      inputGroup.classList.add('shake');
       document.getElementById('auth-password').value = '';
       document.getElementById('auth-password').focus();
     }
